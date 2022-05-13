@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-nunito text-gray-700;
+  }
+  button {
+    &:focus {
+      @apply outline-none;
+    }
+    &:hover {
+      @apply opacity-70 transition-all duration-300;
+    }
+    &:disabled {
+      @apply opacity-70;
+    }
+  }
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+  .centering {
+    @apply relative top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%];
+  }
+}
