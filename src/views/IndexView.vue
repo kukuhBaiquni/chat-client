@@ -61,6 +61,7 @@
 import InputText from '../components/forms/input-text.vue'
 import { login, register } from '../api/auth'
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
+import Cookies from 'js-cookie'
 
 export default {
   name: 'IndexView',
@@ -110,16 +111,14 @@ export default {
           password: this.form.password,
         })
         if (response?.success) {
-          console.log('lool')
+          Cookies.set('access_token', response.token)
+          this.$router.push('/chat')
         } else {
           this.errorMessage = response.message
           this.successMessage = ''
         }
       }
-      setTimeout(() => {
-        this.isLoading = false
-      }, 1500)
-      // this.$router.push('/chat')
+      this.isLoading = false
     },
     toggleForm() {
       this.form.name = ''
