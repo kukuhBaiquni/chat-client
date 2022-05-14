@@ -10,9 +10,14 @@ const router = createRouter({
       component: IndexView,
     },
     {
+      path: '/verify',
+      name: 'verify',
+      component: () => import('../views/VerifyView.vue'),
+    },
+    {
       path: '/chat',
       name: 'chat',
-      component: () => import('../views/ChatView.vue')
+      component: () => import('../views/ChatView.vue'),
     },
     // {
     //   path: '/about',
@@ -22,7 +27,7 @@ const router = createRouter({
     //   // which is lazy-loaded when the route is visited.
     //   component: () => import('../views/AboutView.vue')
     // }
-  ]
+  ],
 })
 
 export default router

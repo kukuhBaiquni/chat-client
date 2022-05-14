@@ -10,6 +10,12 @@
       >
         {{ errorMessage }}
       </div>
+      <div
+        v-if="successMessage"
+        class="p-2 rounded w-[80%] text-center bg-green-200 border-green-500 border-solid border-[1px] text-green-500 mb-4"
+      >
+        {{ successMessage }}
+      </div>
       <InputText
         v-if="isRegister"
         v-model:value="form.name"
@@ -53,7 +59,7 @@
 
 <script>
 import InputText from '../components/forms/input-text.vue'
-import { login } from '../api/auth'
+import { login, register } from '../api/auth'
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
 
 export default {
@@ -71,6 +77,7 @@ export default {
       },
       isRegister: true,
       errorMessage: '',
+      successMessage: '',
       loader: {
         size: '12px',
         color: '#FFFFFF',
@@ -82,7 +89,21 @@ export default {
     async onSubmit() {
       this.isLoading = true
       if (this.isRegister) {
-        console.log('oo')
+        const response = await register({
+          name: this.form.name,
+          email: this.form.email,
+          password: this.form.password,
+        })
+        if (response?.success) {
+          this.successMessage = response.message
+          this.errorMessage = ''
+          this.form.name = ''
+          this.form.email = ''
+          this.form.password = ''
+        } else {
+          this.errorMessage = response.message
+          this.successMessage = ''
+        }
       } else {
         const response = await login({
           email: this.form.email,
@@ -91,12 +112,13 @@ export default {
         if (response?.success) {
           console.log('lool')
         } else {
-          setTimeout(() => {
-            this.isLoading = false
-          }, 1500)
           this.errorMessage = response.message
+          this.successMessage = ''
         }
       }
+      setTimeout(() => {
+        this.isLoading = false
+      }, 1500)
       // this.$router.push('/chat')
     },
     toggleForm() {
@@ -104,6 +126,9 @@ export default {
       this.form.email = ''
       this.form.password = ''
       this.isRegister = !this.isRegister
+      this.errorMessage = ''
+      this.successMessage = ''
+      this.isLoading = false
     },
   },
   mounted() {
