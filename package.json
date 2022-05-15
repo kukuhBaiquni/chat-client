@@ -9,8 +9,11 @@
   },
   "dependencies": {
     "axios": "^0.27.2",
+    "dayjs": "^1.11.2",
+    "javascript-time-ago": "^2.3.13",
     "js-cookie": "^3.0.1",
     "socket.io-client": "^4.5.0",
+    "throttle-debounce": "^5.0.0",
     "vue": "^3.2.33",
     "vue-head": "^2.2.0",
     "vue-router": "^4.0.14",

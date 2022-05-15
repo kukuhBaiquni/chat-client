@@ -111,7 +111,9 @@ export default {
           password: this.form.password,
         })
         if (response?.success) {
+          console.log('response', response)
           Cookies.set('access_token', response.token)
+          this.$store.dispatch('user/setUser', response.data)
           this.$router.push('/chat')
         } else {
           this.errorMessage = response.message
@@ -132,6 +134,12 @@ export default {
   },
   mounted() {
     console.log('PATH___', window.location.pathname)
+  },
+  beforeMount() {
+    const token = Cookies.get('access_token')
+    if (token) {
+      this.$router.replace('/chat')
+    }
   },
 }
 </script>

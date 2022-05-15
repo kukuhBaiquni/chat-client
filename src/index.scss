@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply font-nunito text-gray-700;
+    @apply font-nunito text-gray-700 text-sm;
   }
   button {
     &:focus {
@@ -22,5 +22,37 @@
   }
   .centering {
     @apply relative top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%];
+  }
+  .chat {
+    @apply max-w-[75%] rounded;
+  }
+  .me {
+    @apply bg-sky-500 self-end mr-10 text-white;
+  }
+  .you {
+    @apply bg-gray-200 self-start clear-both ml-10 text-gray-600;
+  }
+  .custom-scroll {
+    @media only screen and (min-width: 576px) {
+      &::-webkit-scrollbar {
+        @apply w-1.5;
+      }
+
+      &::-webkit-scrollbar-track {
+        @apply bg-transparent;
+      }
+
+      &::-webkit-scrollbar-corner {
+        @apply bg-transparent;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        @apply bg-sky-300;
+      }
+
+      &::-webkit-scrollbar-thumb:hover {
+        @apply bg-sky-400;
+      }
+    }
   }
 }
