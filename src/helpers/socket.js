@@ -3,7 +3,7 @@ import Cookies from 'js-cookie'
 
 const token = Cookies.get('access_token')
 
-export default io('http://192.168.1.7:8081', {
+export default io(import.meta.env.VITE_SERVER_URL, {
   extraHeaders: {
     token,
   },
