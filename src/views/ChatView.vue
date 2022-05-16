@@ -1,9 +1,14 @@
 <template>
   <main class="h-screen w-screen text">
     <div
-      class="max-w-screen h-screen xl:h-[90%] z-10 xl:max-w-screen-lg centering flex"
+      class="max-w-screen h-screen xl:h-[95%] z-10 xl:max-w-screen-lg centering flex"
     >
-      <div class="w-[40%] bg-sky-100 h-full border-r border-sky-200">
+      <div
+        :class="[
+          'w-full sm:w-[60%] md:w-[40%] bg-gray-300 h-full border-r border-sky-200',
+          activeChatIndex !== -1 && 'hidden sm:block',
+        ]"
+      >
         <div class="bg-sky-200 h-[52px] px-2 flex items-center">
           <div class="relative w-[50px]">
             <img
@@ -34,6 +39,7 @@
               <button
                 type="button"
                 title="Logout"
+                @click="logout"
                 class="px-1 rounded flex-center bg-sky-500"
               >
                 <i class="bx bx-power-off text-xl text-white"></i>
@@ -42,7 +48,7 @@
           </div>
         </div>
         <div
-          v-if="showSearchPanel"
+          v-if="false"
           :class="[
             'h-[52px] bg-sky-200 flex-center px-2 border-b border-sky-200 relative',
             'transition-all',
@@ -56,6 +62,7 @@
             <input
               type="text"
               placeholder="Search User"
+              v-model="query"
               class="w-full p-1.5 rounded text-gray-600 bg-sky-100 focus:outline-none placeholder-gray-400"
             />
           </div>
@@ -63,42 +70,21 @@
             <i class="bx bx-x text-2xl text-gray-600"></i>
           </button>
         </div>
-        <div class="overflow-y-auto h-[calc(90%+3px)] custom-scroll p-2">
-          <button
-            v-for="(user, index) in $store.state.userList.data"
-            :class="[
-              'p-2 flex items-center mb-1 rounded w-full',
-              activeChatIndex === index ? 'bg-sky-300' : 'bg-gray-300',
-            ]"
-            :key="user.id"
-            @click="getUserChat(index, 1)"
-          >
-            <ImageStatus
-              :name="user.name"
-              :image="user.image"
-              :lastSeen="user.last_seen"
-              :isActive="activeChatIndex === index"
-              :border="
-                activeChatIndex === index ? 'border-sky-300' : 'border-gray-200'
-              "
-            />
-          </button>
-        </div>
+        <UserCard :idx="activeChatIndex" :setIdx="setActiveChatIndex" />
       </div>
-      <ChatBox :idx="activeChatIndex" />
+      <ChatBox :idx="activeChatIndex" :setIdx="setActiveChatIndex" />
     </div>
   </main>
 </template>
 
 <script>
 import ChatBox from '../components/chat-box.vue'
-// import socket from '../helpers/socket'
-import { getExistUser, getUserByToken } from '../api/user'
-import { getChat } from '../api/chat'
+import { getExistUser, getUserByToken, getSpecificUser } from '../api/user'
 import Cookies from 'js-cookie'
-import ImageStatus from '../components/image-status.vue'
 import socket from '../helpers/socket'
 import { EVENT } from '../constants/event'
+import UserCard from '../components/user-card.vue'
+import { debounce } from 'throttle-debounce'
 
 export default {
   data() {
@@ -107,11 +93,12 @@ export default {
       showSearchPanel: false,
       page: 1,
       activeChatIndex: -1,
+      query: '',
     }
   },
   components: {
     ChatBox,
-    ImageStatus,
+    UserCard,
   },
   computed: {
     target() {
@@ -123,7 +110,7 @@ export default {
     const token = Cookies.get('access_token')
     if (token) {
       if (!this.$store.state.user.id) {
-        this.getSelf(token)
+        this.getSelf()
       } else {
         this.getOtherUser(1)
         this.page++
@@ -137,24 +124,31 @@ export default {
 
     socket.emit(EVENT.USER_CONNECTED)
 
-    socket.on('connect', () => {
-      console.log('ponco')
-    })
+    socket.on('connect', () => {})
 
     // Change user list status to online
     socket.on(EVENT.USER_CONNECTED, (data) => {
+      console.log(this.$store.state.user)
+      console.log(data)
       this.$store.dispatch('userList/changeStatus', data)
+      if (
+        this.$store.state.userList.data
+          .map((user) => user.id)
+          .indexOf(data.id) === -1 &&
+        this.$store.state.user.id !== data.id
+      ) {
+        this.$store.dispatch('userList/prependUser', data)
+      }
     })
 
     // Change user list status to offline
     socket.on(EVENT.USER_DISCONNECTED, (data) => {
-      console.log('DC', data)
       this.$store.dispatch('userList/changeStatus', data)
     })
   },
   methods: {
-    async getSelf(token) {
-      const response = await getUserByToken({ token })
+    async getSelf() {
+      const response = await getUserByToken()
       if (response.success) {
         this.$store.dispatch('user/setUser', response.data)
         this.getOtherUser(1)
@@ -170,24 +164,19 @@ export default {
       })
       this.$store.dispatch('userList/setUsers', response.data)
     },
-    async getUserChat(index, page) {
-      const response = await getChat({
-        senderId: this.$store.state.user.id,
-        recipientId: this.$store.state.userList.data[index].id,
-        page,
-      })
-      console.log(response)
-      const mapOwnership = response.data.map((item) => {
-        if (item.user_id === this.$store.state.user.id) {
-          return {
-            ...item,
-            ownership: 1,
-          }
-        }
-        return { ...item, ownership: 0 }
-      })
-      this.$store.dispatch('chatList/setInitialChat', mapOwnership)
+    async logout() {
+      Cookies.remove('access_token')
+      this.$router.replace('/')
+    },
+    setActiveChatIndex(index) {
       this.activeChatIndex = index
+    },
+    async filterUser() {
+      const debounceFunc = debounce(500, async () => {
+        const response = await getSpecificUser({ name: this.query })
+        console.log(response)
+      })
+      debounceFunc()
     },
   },
   beforeUnmount() {

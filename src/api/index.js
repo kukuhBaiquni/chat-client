@@ -1,11 +1,16 @@
 import axios from 'axios'
+import Cookies from 'js-cookie'
 
 // eslint-disable-next-line no-undef
 const BASE_URL = import.meta.env.VITE_SERVER_URL
+const token = Cookies.get('access_token')
 console.log(BASE_URL)
 
 const API = axios.create({
   baseURL: BASE_URL,
+  headers: {
+    Authorization: token,
+  },
 })
 
 API.interceptors.response.use(

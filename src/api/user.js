@@ -10,20 +10,18 @@ export const getExistUser = async ({ id, page }) =>
     },
   })
 
-export const getSelf = async ({ id }) =>
+export const getSpecificUser = async ({ id, name }) =>
   API({
     method: 'GET',
     url: '/api/v1/user/self',
     params: {
       id,
+      name,
     },
   })
 
-export const getUserByToken = async ({ token }) =>
+export const getUserByToken = async () =>
   API({
     method: 'GET',
     url: '/api/v1/user/get-by-token',
-    headers: {
-      Authorization: token,
-    },
   })

@@ -1,7 +1,7 @@
 export default {
   namespaced: true,
   state: {
-    data: []
+    data: [],
   },
   mutations: {
     SET_USERS(state, payload) {
@@ -9,12 +9,15 @@ export default {
     },
     CHANGE_STATUS(state, payload) {
       let copyData = [...state.data]
-      const index = copyData.map(item => item?.id).indexOf(payload.id)
+      const index = copyData.map((item) => item?.id).indexOf(payload.id)
       if (index !== -1) {
         copyData[index].last_seen = payload.last_seen
         state.data = copyData
       }
-    }
+    },
+    PREPEND_USER(state, payload) {
+      state.data = [payload, ...state.data]
+    },
   },
   actions: {
     setUsers(ctx, payload) {
@@ -22,6 +25,9 @@ export default {
     },
     changeStatus(ctx, payload) {
       ctx.commit('CHANGE_STATUS', payload)
-    }
+    },
+    prependUser(ctx, payload) {
+      ctx.commit('PREPEND_USER', payload)
+    },
   },
 }

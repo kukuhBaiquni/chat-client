@@ -1,6 +1,11 @@
 import API from '.'
 
-export const getChat = async ({ token, senderId, recipientId, page }) =>
+export const getChat = async ({
+  token,
+  senderId,
+  recipientId,
+  offset, // total chat displayed in client
+}) =>
   API({
     method: 'GET',
     url: `/api/v1/chat`,
@@ -10,6 +15,6 @@ export const getChat = async ({ token, senderId, recipientId, page }) =>
     params: {
       senderId,
       recipientId,
-      page,
+      offset, // total chat displayed in client
     },
   })
